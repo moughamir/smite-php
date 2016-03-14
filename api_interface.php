@@ -3,10 +3,20 @@
 		global $dbconn;
 		$dev_id = "1234";
 		$url = get_url("createsession", false);
-		$response = file_get_contents($url);
-		$response_decoded = json_decode($response);
-		$session_id = $response_decoded->session_id;
-		return $session_id;
+		$query = "SELECT session_id FROM session WHERE creation_time > CURRENT_TIMESTAMP - interval '15 minutes'";
+		$results = pg_query($dbconn, $query);
+		if (pg_num_rows($results) == 0) {
+			$response = file_get_contents($url);
+			$response_decoded = json_decode($response);
+			$session_id = $response_decoded->session_id;
+			$insert_query = "INSERT INTO session VALUES ('$session_id', CURRENT_TIMESTAMP)";
+			pg_query($dbconn, $insert_query);
+			return $session_id;
+		} else {
+			$row = pg_fetch_row($results);
+			$session_id = $row[0];
+			return $row[0];
+		}
 	}
 	
 	function get_url($function, $session) {
