@@ -1,7 +1,11 @@
 <?php
+	// vars
+	$devId = "1234"; // Your dev key
+	$authKey = "01234567890123456789012345678901"; // your API auth key
+
 	function get_api_session() {
 		global $dbconn;
-		$dev_id = "1234";
+		$dev_id = $devId;
 		$url = get_url("createsession", false);
 		$query = "SELECT session_id FROM session WHERE creation_time > CURRENT_TIMESTAMP - interval '15 minutes'";
 		$results = pg_query($dbconn, $query);
@@ -30,8 +34,8 @@
 	}
 	
 	function get_signature($function, $date) {
-		$dev_id = "1234";
-		$auth_key = "01234567890123456789012345678901";
+		$dev_id = $devId;
+		$auth_key = $authKey;
 		$concat_string = $dev_id . $function . $auth_key . $date;
 		return md5($concat_string);
 	}
